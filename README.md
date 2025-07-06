@@ -16,16 +16,9 @@ Haxe 4.2+
 
 ## Install Haxe dependencies
 
-With lix
-
-    lix download
-
-Or with haxelib
-
     haxelib install haxelib.json
-
 
 ## Run Tests
 
-haxe build/test.hxml
+    haxe build/test.hxml
 

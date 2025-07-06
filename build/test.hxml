@@ -1,0 +1,11 @@
+-main polyboolhx.PolyboolTest
+-debug
+-p src
+-lib deep_equal
+
+-D no-deprecation-warnings
+-D nodejs
+-js dist/polyboolhx/js/polybool.js
+
+-cmd node dist/polyboolhx/js/polybool.js
+

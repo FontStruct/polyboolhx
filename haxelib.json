@@ -1,0 +1,16 @@
+{
+  "name": "polyboolhx",
+  "url" : "https://github.com/FontStruct/polyboolhx",
+  "license": "BSD",
+  "tags": [
+    "polybool", "boolean", "geometry", "union", "intersection"
+  ],
+  "description": "Boolean operations on polygons for Haxe. Port of https://github.com/velipso/polybool",
+  "version": "0.0.1",
+  "releasenote": "Minimal tests passing",
+  "contributors": ["FontStruct"],
+  "classPath": "src/",
+  "dependencies": {
+    "deep_equal": "0.3.2"
+  }
+}

@@ -1,4 +1,4 @@
--main polyboolhx.PolyboolTest
+-main polyboolhx.test.TestRunner
 -debug
 -p src
 -lib deep_equal

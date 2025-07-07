@@ -1,0 +1,11 @@
+-main polyboolhx.test.VisualTestRunner
+-debug
+-p src
+
+-D no-deprecation-warnings
+-D nodejs
+-js dist/polyboolhx/js/vistest/vistest.js
+-lib hxnodejs
+
+-cmd node dist/polyboolhx/js/vistest/vistest.js
+

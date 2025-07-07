@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: 0BSD
 //
 
-package polyboolhx;
+package polyboolhx.test;
 
 import polyboolhx.Polybool;
 import haxe.Exception;
@@ -13,6 +13,7 @@ import deepequal.DeepEqual;
 import deepequal.Outcome.Success;
 import deepequal.Outcome.Failure;
 import haxe.Json;
+import polyboolhx.test.TestRunner;
 
 class Receiver {
     public var log:Array<Dynamic> = [];
@@ -54,7 +55,7 @@ class Receiver {
 }
 
 
-class PolyboolTest {
+class TestRunner {
 
     static var triangle1 = {
         regions: [[
@@ -111,7 +112,7 @@ class PolyboolTest {
             {
                 name: 'basic intersection',
                 func: () -> {
-                    PolyboolTest.assertEqual(
+                    TestRunner.assertEqual(
                         polybool.intersect(triangle1, triangle2),
                         {
                             regions: [[

@@ -6,727 +6,22 @@ function $extend(from, fields) {
 	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
 	return proto;
 }
-var DateTools = function() { };
-DateTools.__name__ = "DateTools";
-DateTools.__format_get = function(d,e) {
-	switch(e) {
-	case "%":
-		return "%";
-	case "A":
-		return DateTools.DAY_NAMES[d.getDay()];
-	case "B":
-		return DateTools.MONTH_NAMES[d.getMonth()];
-	case "C":
-		return StringTools.lpad(Std.string(d.getFullYear() / 100 | 0),"0",2);
-	case "D":
-		return DateTools.__format(d,"%m/%d/%y");
-	case "F":
-		return DateTools.__format(d,"%Y-%m-%d");
-	case "I":case "l":
-		var hour = d.getHours() % 12;
-		return StringTools.lpad(Std.string(hour == 0 ? 12 : hour),e == "I" ? "0" : " ",2);
-	case "M":
-		return StringTools.lpad(Std.string(d.getMinutes()),"0",2);
-	case "R":
-		return DateTools.__format(d,"%H:%M");
-	case "S":
-		return StringTools.lpad(Std.string(d.getSeconds()),"0",2);
-	case "T":
-		return DateTools.__format(d,"%H:%M:%S");
-	case "Y":
-		return Std.string(d.getFullYear());
-	case "a":
-		return DateTools.DAY_SHORT_NAMES[d.getDay()];
-	case "b":case "h":
-		return DateTools.MONTH_SHORT_NAMES[d.getMonth()];
-	case "d":
-		return StringTools.lpad(Std.string(d.getDate()),"0",2);
-	case "e":
-		return Std.string(d.getDate());
-	case "H":case "k":
-		return StringTools.lpad(Std.string(d.getHours()),e == "H" ? "0" : " ",2);
-	case "m":
-		return StringTools.lpad(Std.string(d.getMonth() + 1),"0",2);
-	case "n":
-		return "\n";
-	case "p":
-		if(d.getHours() > 11) {
-			return "PM";
-		} else {
-			return "AM";
-		}
-		break;
-	case "r":
-		return DateTools.__format(d,"%I:%M:%S %p");
-	case "s":
-		return Std.string(d.getTime() / 1000 | 0);
-	case "t":
-		return "\t";
-	case "u":
-		var t = d.getDay();
-		if(t == 0) {
-			return "7";
-		} else if(t == null) {
-			return "null";
-		} else {
-			return "" + t;
-		}
-		break;
-	case "w":
-		return Std.string(d.getDay());
-	case "y":
-		return StringTools.lpad(Std.string(d.getFullYear() % 100),"0",2);
-	default:
-		throw new haxe_exceptions_NotImplementedException("Date.format %" + e + "- not implemented yet.",null,{ fileName : "DateTools.hx", lineNumber : 101, className : "DateTools", methodName : "__format_get"});
-	}
-};
-DateTools.__format = function(d,f) {
-	var r_b = "";
-	var p = 0;
-	while(true) {
-		var np = f.indexOf("%",p);
-		if(np < 0) {
-			break;
-		}
-		var len = np - p;
-		r_b += len == null ? HxOverrides.substr(f,p,null) : HxOverrides.substr(f,p,len);
-		r_b += Std.string(DateTools.__format_get(d,HxOverrides.substr(f,np + 1,1)));
-		p = np + 2;
-	}
-	var len = f.length - p;
-	r_b += len == null ? HxOverrides.substr(f,p,null) : HxOverrides.substr(f,p,len);
-	return r_b;
-};
-DateTools.format = function(d,f) {
-	return DateTools.__format(d,f);
-};
-var HxOverrides = function() { };
-HxOverrides.__name__ = "HxOverrides";
-HxOverrides.cca = function(s,index) {
-	var x = s.charCodeAt(index);
-	if(x != x) {
-		return undefined;
-	}
-	return x;
-};
-HxOverrides.substr = function(s,pos,len) {
-	if(len == null) {
-		len = s.length;
-	} else if(len < 0) {
-		if(pos == 0) {
-			len = s.length + len;
-		} else {
-			return "";
-		}
-	}
-	return s.substr(pos,len);
-};
-HxOverrides.remove = function(a,obj) {
-	var i = a.indexOf(obj);
-	if(i == -1) {
-		return false;
-	}
-	a.splice(i,1);
-	return true;
-};
-HxOverrides.now = function() {
-	return Date.now();
-};
-Math.__name__ = "Math";
-var Reflect = function() { };
-Reflect.__name__ = "Reflect";
-Reflect.field = function(o,field) {
-	try {
-		return o[field];
-	} catch( _g ) {
-		return null;
-	}
-};
-Reflect.getProperty = function(o,field) {
-	var tmp;
-	if(o == null) {
-		return null;
-	} else {
-		var tmp1;
-		if(o.__properties__) {
-			tmp = o.__properties__["get_" + field];
-			tmp1 = tmp;
-		} else {
-			tmp1 = false;
-		}
-		if(tmp1) {
-			return o[tmp]();
-		} else {
-			return o[field];
-		}
-	}
-};
-Reflect.fields = function(o) {
-	var a = [];
-	if(o != null) {
-		var hasOwnProperty = Object.prototype.hasOwnProperty;
-		for( var f in o ) {
-		if(f != "__id__" && f != "hx__closures__" && hasOwnProperty.call(o,f)) {
-			a.push(f);
-		}
-		}
-	}
-	return a;
-};
-Reflect.isFunction = function(f) {
-	if(typeof(f) == "function") {
-		return !(f.__name__ || f.__ename__);
-	} else {
-		return false;
-	}
-};
-Reflect.compare = function(a,b) {
-	if(a == b) {
-		return 0;
-	} else if(a > b) {
-		return 1;
-	} else {
-		return -1;
-	}
-};
-Reflect.compareMethods = function(f1,f2) {
-	if(f1 == f2) {
-		return true;
-	}
-	if(!Reflect.isFunction(f1) || !Reflect.isFunction(f2)) {
-		return false;
-	}
-	if(f1.scope == f2.scope && f1.method == f2.method) {
-		return f1.method != null;
-	} else {
-		return false;
-	}
-};
-Reflect.isObject = function(v) {
-	if(v == null) {
-		return false;
-	}
-	var t = typeof(v);
-	if(!(t == "string" || t == "object" && v.__enum__ == null)) {
-		if(t == "function") {
-			return (v.__name__ || v.__ename__) != null;
-		} else {
-			return false;
-		}
-	} else {
-		return true;
-	}
-};
-Reflect.isEnumValue = function(v) {
-	if(v != null) {
-		return v.__enum__ != null;
-	} else {
-		return false;
-	}
-};
+Math.__name__ = true;
 var Std = function() { };
-Std.__name__ = "Std";
+Std.__name__ = true;
 Std.string = function(s) {
 	return js_Boot.__string_rec(s,"");
 };
-var StringTools = function() { };
-StringTools.__name__ = "StringTools";
-StringTools.lpad = function(s,c,l) {
-	if(c.length <= 0) {
-		return s;
-	}
-	var buf_b = "";
-	l -= s.length;
-	while(buf_b.length < l) buf_b += c == null ? "null" : "" + c;
-	buf_b += s == null ? "null" : "" + s;
-	return buf_b;
-};
-var ValueType = $hxEnums["ValueType"] = { __ename__:"ValueType",__constructs__:null
-	,TNull: {_hx_name:"TNull",_hx_index:0,__enum__:"ValueType",toString:$estr}
-	,TInt: {_hx_name:"TInt",_hx_index:1,__enum__:"ValueType",toString:$estr}
-	,TFloat: {_hx_name:"TFloat",_hx_index:2,__enum__:"ValueType",toString:$estr}
-	,TBool: {_hx_name:"TBool",_hx_index:3,__enum__:"ValueType",toString:$estr}
-	,TObject: {_hx_name:"TObject",_hx_index:4,__enum__:"ValueType",toString:$estr}
-	,TFunction: {_hx_name:"TFunction",_hx_index:5,__enum__:"ValueType",toString:$estr}
-	,TClass: ($_=function(c) { return {_hx_index:6,c:c,__enum__:"ValueType",toString:$estr}; },$_._hx_name="TClass",$_.__params__ = ["c"],$_)
-	,TEnum: ($_=function(e) { return {_hx_index:7,e:e,__enum__:"ValueType",toString:$estr}; },$_._hx_name="TEnum",$_.__params__ = ["e"],$_)
-	,TUnknown: {_hx_name:"TUnknown",_hx_index:8,__enum__:"ValueType",toString:$estr}
-};
-ValueType.__constructs__ = [ValueType.TNull,ValueType.TInt,ValueType.TFloat,ValueType.TBool,ValueType.TObject,ValueType.TFunction,ValueType.TClass,ValueType.TEnum,ValueType.TUnknown];
-var Type = function() { };
-Type.__name__ = "Type";
-Type.getEnum = function(o) {
-	if(o == null) {
-		return null;
-	}
-	return $hxEnums[o.__enum__];
-};
-Type.getInstanceFields = function(c) {
-	var a = [];
-	for(var i in c.prototype) a.push(i);
-	HxOverrides.remove(a,"__class__");
-	HxOverrides.remove(a,"__properties__");
-	return a;
-};
-Type.typeof = function(v) {
-	switch(typeof(v)) {
-	case "boolean":
-		return ValueType.TBool;
-	case "function":
-		if(v.__name__ || v.__ename__) {
-			return ValueType.TObject;
-		}
-		return ValueType.TFunction;
-	case "number":
-		if(Math.ceil(v) == v % 2147483648.0) {
-			return ValueType.TInt;
-		}
-		return ValueType.TFloat;
-	case "object":
-		if(v == null) {
-			return ValueType.TNull;
-		}
-		var e = v.__enum__;
-		if(e != null) {
-			return ValueType.TEnum($hxEnums[e]);
-		}
-		var c = js_Boot.getClass(v);
-		if(c != null) {
-			return ValueType.TClass(c);
-		}
-		return ValueType.TObject;
-	case "string":
-		return ValueType.TClass(String);
-	case "undefined":
-		return ValueType.TNull;
-	default:
-		return ValueType.TUnknown;
-	}
-};
-Type.enumParameters = function(e) {
-	var enm = $hxEnums[e.__enum__];
-	var params = enm.__constructs__[e._hx_index].__params__;
-	if(params != null) {
-		var _g = [];
-		var _g1 = 0;
-		while(_g1 < params.length) {
-			var p = params[_g1];
-			++_g1;
-			_g.push(e[p]);
-		}
-		return _g;
-	} else {
-		return [];
-	}
-};
-var deepequal_CustomCompare = function() { };
-deepequal_CustomCompare.__name__ = "deepequal.CustomCompare";
-deepequal_CustomCompare.__isInterface__ = true;
-deepequal_CustomCompare.prototype = {
-	check: null
-	,__class__: deepequal_CustomCompare
-};
-var deepequal_DeepEqual = function() { };
-deepequal_DeepEqual.__name__ = "deepequal.DeepEqual";
-deepequal_DeepEqual.compare = function(e,a,pos) {
-	var _g = new deepequal__$DeepEqual_Compare(e,a).compare();
-	switch(_g._hx_index) {
-	case 0:
-		var s = _g.s;
-		return deepequal_Outcome.Success(s);
-	case 1:
-		var f = _g.f;
-		return deepequal_Outcome.Failure(new deepequal_Error(f.message + " @ v" + deepequal_DeepEqual.reconstructPath(f.path),pos));
-	}
-};
-deepequal_DeepEqual.reconstructPath = function(path) {
-	var buf_b = "";
-	var _g = 0;
-	while(_g < path.length) {
-		var p = path[_g];
-		++_g;
-		switch(p._hx_index) {
-		case 0:
-			var i = p.i;
-			buf_b += Std.string("(enumParam:" + i + ")");
-			break;
-		case 1:
-			var i1 = p.i;
-			buf_b += Std.string("[" + i1 + "]");
-			break;
-		case 2:
-			var k = p.n;
-			buf_b += Std.string("." + k);
-			break;
-		case 3:
-			var k1 = p.n;
-			buf_b += Std.string("[" + Std.string(k1) + "]");
-			break;
-		}
-	}
-	return buf_b;
-};
-var deepequal__$DeepEqual_Compare = function(e,a) {
-	this.path = [];
-	this.e = e;
-	this.a = a;
-};
-deepequal__$DeepEqual_Compare.__name__ = "deepequal._DeepEqual.Compare";
-deepequal__$DeepEqual_Compare.comparer = function(e,a) {
-	return new deepequal__$DeepEqual_Compare(e,a).compare();
-};
-deepequal__$DeepEqual_Compare.prototype = {
-	path: null
-	,e: null
-	,a: null
-	,compare: function() {
-		if(this.e == null) {
-			return this.simple(this.e,this.a);
-		} else if(js_Boot.__implements(this.e,deepequal_CustomCompare)) {
-			return this.e.check(this.a,deepequal__$DeepEqual_Compare.comparer);
-		} else if(this.a == null) {
-			return this.fail("Expected " + Std.string(this.e) + " but got null");
-		} else if(typeof(this.e) == "string") {
-			if(typeof(this.a) != "string") {
-				return this.mismatch(this.e,this.a);
-			}
-			return this.simple(this.e,this.a);
-		} else if(((this.e) instanceof haxe__$Int64__$_$_$Int64)) {
-			if(!((this.a) instanceof haxe__$Int64__$_$_$Int64)) {
-				return this.mismatch(this.e,this.a);
-			}
-			var a = this.e;
-			var b = this.a;
-			if(a.high == b.high && a.low == b.low) {
-				return deepequal_Outcome.Success(deepequal_Noise.Noise);
-			} else {
-				return this.mismatch(this.e,this.a);
-			}
-		} else if(typeof(this.e) == "number") {
-			if(typeof(this.a) != "number") {
-				return this.mismatch(this.e,this.a);
-			}
-			return this.simple(this.e,this.a);
-		} else if(typeof(this.e) == "boolean") {
-			if(typeof(this.a) != "boolean") {
-				return this.mismatch(this.e,this.a);
-			}
-			return this.simple(this.e,this.a);
-		} else if(((this.e) instanceof Date)) {
-			if(!((this.a) instanceof Date)) {
-				return this.mismatch(this.e,this.a);
-			}
-			return this.date(this.e,this.a);
-		} else if(((this.e) instanceof Array)) {
-			if(!((this.a) instanceof Array)) {
-				return this.fail("Expected array but got " + Std.string(this.a));
-			}
-			if(this.a.length != this.e.length) {
-				return this.fail("Expected array of length " + Std.string(this.e.length) + " but got " + Std.string(this.a.length));
-			}
-			var _g = 0;
-			var _g1 = this.a.length;
-			while(_g < _g1) {
-				var i = _g++;
-				this.path.push(deepequal_Path.Index(i));
-				var _g2 = deepequal__$DeepEqual_Compare.comparer(this.e[i],this.a[i]);
-				switch(_g2._hx_index) {
-				case 0:
-					var _g3 = _g2.s;
-					this.path.pop();
-					break;
-				case 1:
-					var _g4 = _g2.f;
-					var m = _g4.message;
-					var p = _g4.path;
-					this.path = this.path.concat(p);
-					return this.fail(m);
-				}
-			}
-			return this.success();
-		} else if(Reflect.isEnumValue(this.e)) {
-			var ecls = Type.getEnum(this.e);
-			var acls = Type.getEnum(this.a);
-			if(acls == null) {
-				return this.fail("Expected enum " + ecls.__ename__ + " but got " + Std.string(this.a));
-			}
-			if(ecls != acls) {
-				return this.fail("Expected enum " + ecls.__ename__ + " but got " + acls.__ename__);
-			}
-			var a = this.a;
-			var e = this.e;
-			var en = $hxEnums[e.__enum__].__constructs__[e._hx_index]._hx_name;
-			var an = $hxEnums[a.__enum__].__constructs__[a._hx_index]._hx_name;
-			if(en != an) {
-				return this.fail("Expected enum constructor " + en + " but got " + an);
-			}
-			var _g = deepequal__$DeepEqual_Compare.comparer(Type.enumParameters(e),Type.enumParameters(a));
-			switch(_g._hx_index) {
-			case 0:
-				var _g1 = _g.s;
-				return deepequal_Outcome.Success(deepequal_Noise.Noise);
-			case 1:
-				var f = _g.f;
-				var _g = f.path.pop();
-				if(_g != null) {
-					if(_g._hx_index == 1) {
-						var i = _g.i;
-						f.path.push(deepequal_Path.EnumParam(i));
-					}
-				}
-				return deepequal_Outcome.Failure(f);
-			}
-		} else if(((this.e) instanceof haxe_io_Bytes)) {
-			var e = this.e;
-			var a = this.a;
-			if(e.length != a.length) {
-				return this.fail("Expected bytes of length " + e.length + " but got " + a.length);
-			}
-			var _g = 0;
-			var _g1 = e.length;
-			while(_g < _g1) {
-				var i = _g++;
-				if(e.b[i] != a.b[i]) {
-					return this.mismatch(e,a);
-				}
-			}
-			return this.success();
-		} else if(js_Boot.__implements(this.e,haxe_IMap)) {
-			if(!js_Boot.__implements(this.a,haxe_IMap)) {
-				return this.fail("Expected map but got " + Std.string(this.a));
-			}
-			var emap = this.e;
-			var amap = this.a;
-			var _g = [];
-			var k = emap.keys();
-			while(k.hasNext()) {
-				var k1 = k.next();
-				_g.push(k1);
-			}
-			var ekeys = _g;
-			var _g = [];
-			var k = amap.keys();
-			while(k.hasNext()) {
-				var k1 = k.next();
-				_g.push(k1);
-			}
-			var akeys = _g;
-			var len = akeys.length;
-			if(len != ekeys.length) {
-				return this.fail("Expected " + ekeys.length + " field(s) but got " + len);
-			} else {
-				ekeys.sort(Reflect.compare);
-				akeys.sort(Reflect.compare);
-				var _g = deepequal__$DeepEqual_Compare.comparer(ekeys,akeys);
-				switch(_g._hx_index) {
-				case 0:
-					var _g1 = _g.s;
-					break;
-				case 1:
-					var _g1 = _g.f;
-					var m = _g1.message;
-					var p = _g1.path;
-					this.path = this.path.concat(p);
-					return this.fail("Map keys mismatch: " + m);
-				}
-			}
-			var _g = 0;
-			while(_g < ekeys.length) {
-				var key = ekeys[_g];
-				++_g;
-				this.path.push(deepequal_Path.Key(key));
-				var _g1 = deepequal__$DeepEqual_Compare.comparer(emap.get(key),amap.get(key));
-				switch(_g1._hx_index) {
-				case 0:
-					var _g2 = _g1.s;
-					this.path.pop();
-					break;
-				case 1:
-					var _g3 = _g1.f;
-					var m = _g3.message;
-					var p = _g3.path;
-					this.path = this.path.concat(p);
-					return this.fail(m);
-				}
-			}
-			return this.success();
-		} else if(Reflect.isFunction(this.e)) {
-			if(!Reflect.isFunction(this.a)) {
-				return this.fail("Expected function but got " + Std.string(this.a));
-			}
-			if(!Reflect.compareMethods(this.e,this.a)) {
-				return this.fail("The two functions are not equal");
-			}
-			return this.success();
-		} else if(js_Boot.getClass(this.e) != null) {
-			var ecls = js_Boot.getClass(this.e);
-			var acls = js_Boot.getClass(this.a);
-			if(ecls != acls) {
-				return this.fail("Expected class instance of " + ecls.__name__ + " but got " + acls.__name__);
-			}
-			var _g = 0;
-			var _g1 = Type.getInstanceFields(ecls);
-			while(_g < _g1.length) {
-				var key = _g1[_g];
-				++_g;
-				if(Reflect.isFunction(Reflect.field(this.e,key))) {
-					continue;
-				}
-				this.path.push(deepequal_Path.Field(key));
-				var _g2 = deepequal__$DeepEqual_Compare.comparer(Reflect.getProperty(this.e,key),Reflect.getProperty(this.a,key));
-				switch(_g2._hx_index) {
-				case 0:
-					var _g3 = _g2.s;
-					this.path.pop();
-					break;
-				case 1:
-					var f = _g2.f;
-					this.path = this.path.concat(f.path);
-					return this.fail(f.message);
-				}
-			}
-			return this.success();
-		} else if(js_Boot.__instanceof(this.e,Class)) {
-			if(!js_Boot.__instanceof(this.a,Class)) {
-				return this.mismatch(this.e,this.a);
-			}
-			return this.simple(this.e,this.a);
-		} else if(js_Boot.__instanceof(this.e,Enum)) {
-			if(!js_Boot.__instanceof(this.a,Enum)) {
-				return this.mismatch(this.e,this.a);
-			}
-			return this.simple(this.e,this.a);
-		} else if(Reflect.isObject(this.e)) {
-			if(!Reflect.isObject(this.a)) {
-				return this.fail("Expected object but got " + Std.string(this.a));
-			}
-			var keys = Reflect.fields(this.e);
-			var len = Reflect.fields(this.a).length;
-			if(len != keys.length) {
-				return this.fail("Expected " + keys.length + " field(s) but got " + len);
-			}
-			var _g = 0;
-			while(_g < keys.length) {
-				var key = keys[_g];
-				++_g;
-				this.path.push(deepequal_Path.Field(key));
-				var _g1 = deepequal__$DeepEqual_Compare.comparer(Reflect.field(this.e,key),Reflect.field(this.a,key));
-				switch(_g1._hx_index) {
-				case 0:
-					var _g2 = _g1.s;
-					this.path.pop();
-					break;
-				case 1:
-					var _g3 = _g1.f;
-					var m = _g3.message;
-					var p = _g3.path;
-					this.path = this.path.concat(p);
-					return this.fail(m);
-				}
-			}
-			return this.success();
-		} else {
-			throw haxe_Exception.thrown("Unhandled type: " + Std.string(Type.typeof(this.e)) + " (" + Std.string(this.e) + ")");
-		}
-	}
-	,success: function() {
-		return deepequal_Outcome.Success(deepequal_Noise.Noise);
-	}
-	,fail: function(msg) {
-		return deepequal_Outcome.Failure({ message : msg, path : this.path});
-	}
-	,mismatch: function(e,a) {
-		return this.fail("Expected " + deepequal_Stringifier.stringify(e) + " but got " + (a == null ? null : deepequal_Stringifier.stringify(a)));
-	}
-	,bool: function(b) {
-		if(b) {
-			return this.success();
-		} else {
-			return this.fail("Expected true but got false");
-		}
-	}
-	,simple: function(e,a) {
-		if(e == a) {
-			return this.success();
-		} else {
-			return this.mismatch(e,a);
-		}
-	}
-	,date: function(e,a) {
-		var _g = this.simple(e.getTime(),a.getTime());
-		switch(_g._hx_index) {
-		case 0:
-			var _g1 = _g.s;
-			return deepequal_Outcome.Success(deepequal_Noise.Noise);
-		case 1:
-			var _g1 = _g.f;
-			return this.mismatch(e,a);
-		}
-	}
-	,__class__: deepequal__$DeepEqual_Compare
-};
-var deepequal_Error = function(message,pos) {
-	this.message = message;
-	this.pos = pos;
-};
-deepequal_Error.__name__ = "deepequal.Error";
-deepequal_Error.withData = function(message,data,pos) {
-	var e = new deepequal_Error(message,pos);
-	e.data = data;
-	return e;
-};
-deepequal_Error.prototype = {
-	message: null
-	,data: null
-	,pos: null
-	,__class__: deepequal_Error
-};
-var deepequal_Noise = $hxEnums["deepequal.Noise"] = { __ename__:"deepequal.Noise",__constructs__:null
-	,Noise: {_hx_name:"Noise",_hx_index:0,__enum__:"deepequal.Noise",toString:$estr}
-};
-deepequal_Noise.__constructs__ = [deepequal_Noise.Noise];
-var deepequal_Outcome = $hxEnums["deepequal.Outcome"] = { __ename__:"deepequal.Outcome",__constructs__:null
-	,Success: ($_=function(s) { return {_hx_index:0,s:s,__enum__:"deepequal.Outcome",toString:$estr}; },$_._hx_name="Success",$_.__params__ = ["s"],$_)
-	,Failure: ($_=function(f) { return {_hx_index:1,f:f,__enum__:"deepequal.Outcome",toString:$estr}; },$_._hx_name="Failure",$_.__params__ = ["f"],$_)
-};
-deepequal_Outcome.__constructs__ = [deepequal_Outcome.Success,deepequal_Outcome.Failure];
-var deepequal_Path = $hxEnums["deepequal.Path"] = { __ename__:"deepequal.Path",__constructs__:null
-	,EnumParam: ($_=function(i) { return {_hx_index:0,i:i,__enum__:"deepequal.Path",toString:$estr}; },$_._hx_name="EnumParam",$_.__params__ = ["i"],$_)
-	,Index: ($_=function(i) { return {_hx_index:1,i:i,__enum__:"deepequal.Path",toString:$estr}; },$_._hx_name="Index",$_.__params__ = ["i"],$_)
-	,Field: ($_=function(n) { return {_hx_index:2,n:n,__enum__:"deepequal.Path",toString:$estr}; },$_._hx_name="Field",$_.__params__ = ["n"],$_)
-	,Key: ($_=function(n) { return {_hx_index:3,n:n,__enum__:"deepequal.Path",toString:$estr}; },$_._hx_name="Key",$_.__params__ = ["n"],$_)
-};
-deepequal_Path.__constructs__ = [deepequal_Path.EnumParam,deepequal_Path.Index,deepequal_Path.Field,deepequal_Path.Key];
-var deepequal_Stringifier = function() { };
-deepequal_Stringifier.__name__ = "deepequal.Stringifier";
-deepequal_Stringifier.stringify = function(v) {
-	if(((v) instanceof haxe__$Int64__$_$_$Int64)) {
-		return haxe_Int64.toString(v);
-	} else if(typeof(v) == "string" || typeof(v) == "number" || typeof(v) == "boolean") {
-		return JSON.stringify(v);
-	} else if(((v) instanceof Date)) {
-		return DateTools.format(v,"%F %T");
-	} else if(((v) instanceof haxe_io_Bytes)) {
-		return "bytes(hex):" + v.toHex();
-	} else {
-		return Std.string(v);
-	}
-};
 var haxe_IMap = function() { };
-haxe_IMap.__name__ = "haxe.IMap";
+haxe_IMap.__name__ = true;
 haxe_IMap.__isInterface__ = true;
-haxe_IMap.prototype = {
-	get: null
-	,keys: null
-	,__class__: haxe_IMap
-};
 var haxe_Exception = function(message,previous,native) {
 	Error.call(this,message);
 	this.message = message;
 	this.__previousException = previous;
 	this.__nativeException = native != null ? native : this;
 };
-haxe_Exception.__name__ = "haxe.Exception";
+haxe_Exception.__name__ = true;
 haxe_Exception.caught = function(value) {
 	if(((value) instanceof haxe_Exception)) {
 		return value;
@@ -748,9 +43,9 @@ haxe_Exception.thrown = function(value) {
 };
 haxe_Exception.__super__ = Error;
 haxe_Exception.prototype = $extend(Error.prototype,{
-	__skipStack: null
-	,__nativeException: null
-	,__previousException: null
+	unwrap: function() {
+		return this.__nativeException;
+	}
 	,toString: function() {
 		return this.get_message();
 	}
@@ -761,257 +56,27 @@ haxe_Exception.prototype = $extend(Error.prototype,{
 		return this.__nativeException;
 	}
 	,__class__: haxe_Exception
-	,__properties__: {get_native:"get_native",get_message:"get_message"}
 });
-var haxe_Int32 = {};
-haxe_Int32.ucompare = function(a,b) {
-	if(a < 0) {
-		if(b < 0) {
-			return ~b - ~a | 0;
-		} else {
-			return 1;
-		}
-	}
-	if(b < 0) {
-		return -1;
-	} else {
-		return a - b | 0;
-	}
-};
-var haxe_Int64 = {};
-haxe_Int64.toString = function(this1) {
-	var i = this1;
-	var b_high = 0;
-	var b_low = 0;
-	if(i.high == b_high && i.low == b_low) {
-		return "0";
-	}
-	var str = "";
-	var neg = false;
-	if(i.high < 0) {
-		neg = true;
-	}
-	var this1 = new haxe__$Int64__$_$_$Int64(0,10);
-	var ten = this1;
-	while(true) {
-		var b_high = 0;
-		var b_low = 0;
-		if(!(i.high != b_high || i.low != b_low)) {
-			break;
-		}
-		var r = haxe_Int64.divMod(i,ten);
-		if(r.modulus.high < 0) {
-			var x = r.modulus;
-			var high = ~x.high;
-			var low = ~x.low + 1 | 0;
-			if(low == 0) {
-				var ret = high++;
-				high = high | 0;
-			}
-			var this_high = high;
-			var this_low = low;
-			str = this_low + str;
-			var x1 = r.quotient;
-			var high1 = ~x1.high;
-			var low1 = ~x1.low + 1 | 0;
-			if(low1 == 0) {
-				var ret1 = high1++;
-				high1 = high1 | 0;
-			}
-			var this1 = new haxe__$Int64__$_$_$Int64(high1,low1);
-			i = this1;
-		} else {
-			str = r.modulus.low + str;
-			i = r.quotient;
-		}
-	}
-	if(neg) {
-		str = "-" + str;
-	}
-	return str;
-};
-haxe_Int64.divMod = function(dividend,divisor) {
-	if(divisor.high == 0) {
-		switch(divisor.low) {
-		case 0:
-			throw haxe_Exception.thrown("divide by zero");
-		case 1:
-			var this1 = new haxe__$Int64__$_$_$Int64(dividend.high,dividend.low);
-			var this2 = new haxe__$Int64__$_$_$Int64(0,0);
-			return { quotient : this1, modulus : this2};
-		}
-	}
-	var divSign = dividend.high < 0 != divisor.high < 0;
-	var modulus;
-	if(dividend.high < 0) {
-		var high = ~dividend.high;
-		var low = ~dividend.low + 1 | 0;
-		if(low == 0) {
-			var ret = high++;
-			high = high | 0;
-		}
-		var this1 = new haxe__$Int64__$_$_$Int64(high,low);
-		modulus = this1;
-	} else {
-		var this1 = new haxe__$Int64__$_$_$Int64(dividend.high,dividend.low);
-		modulus = this1;
-	}
-	if(divisor.high < 0) {
-		var high = ~divisor.high;
-		var low = ~divisor.low + 1 | 0;
-		if(low == 0) {
-			var ret = high++;
-			high = high | 0;
-		}
-		var this1 = new haxe__$Int64__$_$_$Int64(high,low);
-		divisor = this1;
-	}
-	var this1 = new haxe__$Int64__$_$_$Int64(0,0);
-	var quotient = this1;
-	var this1 = new haxe__$Int64__$_$_$Int64(0,1);
-	var mask = this1;
-	while(!(divisor.high < 0)) {
-		var v = haxe_Int32.ucompare(divisor.high,modulus.high);
-		var cmp = v != 0 ? v : haxe_Int32.ucompare(divisor.low,modulus.low);
-		var b = 1;
-		b &= 63;
-		if(b == 0) {
-			var this1 = new haxe__$Int64__$_$_$Int64(divisor.high,divisor.low);
-			divisor = this1;
-		} else if(b < 32) {
-			var this2 = new haxe__$Int64__$_$_$Int64(divisor.high << b | divisor.low >>> 32 - b,divisor.low << b);
-			divisor = this2;
-		} else {
-			var this3 = new haxe__$Int64__$_$_$Int64(divisor.low << b - 32,0);
-			divisor = this3;
-		}
-		var b1 = 1;
-		b1 &= 63;
-		if(b1 == 0) {
-			var this4 = new haxe__$Int64__$_$_$Int64(mask.high,mask.low);
-			mask = this4;
-		} else if(b1 < 32) {
-			var this5 = new haxe__$Int64__$_$_$Int64(mask.high << b1 | mask.low >>> 32 - b1,mask.low << b1);
-			mask = this5;
-		} else {
-			var this6 = new haxe__$Int64__$_$_$Int64(mask.low << b1 - 32,0);
-			mask = this6;
-		}
-		if(cmp >= 0) {
-			break;
-		}
-	}
-	while(true) {
-		var b_high = 0;
-		var b_low = 0;
-		if(!(mask.high != b_high || mask.low != b_low)) {
-			break;
-		}
-		var v = haxe_Int32.ucompare(modulus.high,divisor.high);
-		if((v != 0 ? v : haxe_Int32.ucompare(modulus.low,divisor.low)) >= 0) {
-			var this1 = new haxe__$Int64__$_$_$Int64(quotient.high | mask.high,quotient.low | mask.low);
-			quotient = this1;
-			var high = modulus.high - divisor.high | 0;
-			var low = modulus.low - divisor.low | 0;
-			if(haxe_Int32.ucompare(modulus.low,divisor.low) < 0) {
-				var ret = high--;
-				high = high | 0;
-			}
-			var this2 = new haxe__$Int64__$_$_$Int64(high,low);
-			modulus = this2;
-		}
-		var b = 1;
-		b &= 63;
-		if(b == 0) {
-			var this3 = new haxe__$Int64__$_$_$Int64(mask.high,mask.low);
-			mask = this3;
-		} else if(b < 32) {
-			var this4 = new haxe__$Int64__$_$_$Int64(mask.high >>> b,mask.high << 32 - b | mask.low >>> b);
-			mask = this4;
-		} else {
-			var this5 = new haxe__$Int64__$_$_$Int64(0,mask.high >>> b - 32);
-			mask = this5;
-		}
-		var b1 = 1;
-		b1 &= 63;
-		if(b1 == 0) {
-			var this6 = new haxe__$Int64__$_$_$Int64(divisor.high,divisor.low);
-			divisor = this6;
-		} else if(b1 < 32) {
-			var this7 = new haxe__$Int64__$_$_$Int64(divisor.high >>> b1,divisor.high << 32 - b1 | divisor.low >>> b1);
-			divisor = this7;
-		} else {
-			var this8 = new haxe__$Int64__$_$_$Int64(0,divisor.high >>> b1 - 32);
-			divisor = this8;
-		}
-	}
-	if(divSign) {
-		var high = ~quotient.high;
-		var low = ~quotient.low + 1 | 0;
-		if(low == 0) {
-			var ret = high++;
-			high = high | 0;
-		}
-		var this1 = new haxe__$Int64__$_$_$Int64(high,low);
-		quotient = this1;
-	}
-	if(dividend.high < 0) {
-		var high = ~modulus.high;
-		var low = ~modulus.low + 1 | 0;
-		if(low == 0) {
-			var ret = high++;
-			high = high | 0;
-		}
-		var this1 = new haxe__$Int64__$_$_$Int64(high,low);
-		modulus = this1;
-	}
-	return { quotient : quotient, modulus : modulus};
-};
-var haxe__$Int64__$_$_$Int64 = function(high,low) {
-	this.high = high;
-	this.low = low;
-};
-haxe__$Int64__$_$_$Int64.__name__ = "haxe._Int64.___Int64";
-haxe__$Int64__$_$_$Int64.prototype = {
-	high: null
-	,low: null
-	,__class__: haxe__$Int64__$_$_$Int64
-};
-var haxe_Log = function() { };
-haxe_Log.__name__ = "haxe.Log";
-haxe_Log.formatOutput = function(v,infos) {
-	var str = Std.string(v);
-	if(infos == null) {
-		return str;
-	}
-	var pstr = infos.fileName + ":" + infos.lineNumber;
-	if(infos.customParams != null) {
-		var _g = 0;
-		var _g1 = infos.customParams;
-		while(_g < _g1.length) {
-			var v = _g1[_g];
-			++_g;
-			str += ", " + Std.string(v);
-		}
-	}
-	return pstr + ": " + str;
-};
-haxe_Log.trace = function(v,infos) {
-	var str = haxe_Log.formatOutput(v,infos);
-	if(typeof(console) != "undefined" && console.log != null) {
-		console.log(str);
-	}
-};
 var haxe_ValueException = function(value,previous,native) {
 	haxe_Exception.call(this,String(value),previous,native);
 	this.value = value;
 };
-haxe_ValueException.__name__ = "haxe.ValueException";
+haxe_ValueException.__name__ = true;
 haxe_ValueException.__super__ = haxe_Exception;
 haxe_ValueException.prototype = $extend(haxe_Exception.prototype,{
-	value: null
+	unwrap: function() {
+		return this.value;
+	}
 	,__class__: haxe_ValueException
 });
+var haxe_ds_StringMap = function() {
+	this.h = Object.create(null);
+};
+haxe_ds_StringMap.__name__ = true;
+haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
+haxe_ds_StringMap.prototype = {
+	__class__: haxe_ds_StringMap
+};
 var haxe_exceptions_PosException = function(message,previous,pos) {
 	haxe_Exception.call(this,message,previous);
 	if(pos == null) {
@@ -1020,11 +85,10 @@ var haxe_exceptions_PosException = function(message,previous,pos) {
 		this.posInfos = pos;
 	}
 };
-haxe_exceptions_PosException.__name__ = "haxe.exceptions.PosException";
+haxe_exceptions_PosException.__name__ = true;
 haxe_exceptions_PosException.__super__ = haxe_Exception;
 haxe_exceptions_PosException.prototype = $extend(haxe_Exception.prototype,{
-	posInfos: null
-	,toString: function() {
+	toString: function() {
 		return "" + haxe_Exception.prototype.toString.call(this) + " in " + this.posInfos.className + "." + this.posInfos.methodName + " at " + this.posInfos.fileName + ":" + this.posInfos.lineNumber;
 	}
 	,__class__: haxe_exceptions_PosException
@@ -1035,7 +99,7 @@ var haxe_exceptions_NotImplementedException = function(message,previous,pos) {
 	}
 	haxe_exceptions_PosException.call(this,message,previous,pos);
 };
-haxe_exceptions_NotImplementedException.__name__ = "haxe.exceptions.NotImplementedException";
+haxe_exceptions_NotImplementedException.__name__ = true;
 haxe_exceptions_NotImplementedException.__super__ = haxe_exceptions_PosException;
 haxe_exceptions_NotImplementedException.prototype = $extend(haxe_exceptions_PosException.prototype,{
 	__class__: haxe_exceptions_NotImplementedException
@@ -1047,41 +111,110 @@ var haxe_io_Bytes = function(data) {
 	data.hxBytes = this;
 	data.bytes = this.b;
 };
-haxe_io_Bytes.__name__ = "haxe.io.Bytes";
-haxe_io_Bytes.prototype = {
-	length: null
-	,b: null
-	,toHex: function() {
-		var s_b = "";
-		var chars = [];
-		var str = "0123456789abcdef";
+haxe_io_Bytes.__name__ = true;
+haxe_io_Bytes.ofString = function(s,encoding) {
+	if(encoding == haxe_io_Encoding.RawNative) {
+		var buf = new Uint8Array(s.length << 1);
 		var _g = 0;
-		var _g1 = str.length;
+		var _g1 = s.length;
 		while(_g < _g1) {
 			var i = _g++;
-			chars.push(HxOverrides.cca(str,i));
+			var c = s.charCodeAt(i);
+			buf[i << 1] = c & 255;
+			buf[i << 1 | 1] = c >> 8;
 		}
-		var _g = 0;
-		var _g1 = this.length;
-		while(_g < _g1) {
-			var i = _g++;
-			var c = this.b[i];
-			s_b += String.fromCodePoint(chars[c >> 4]);
-			s_b += String.fromCodePoint(chars[c & 15]);
-		}
-		return s_b;
+		return new haxe_io_Bytes(buf.buffer);
 	}
-	,__class__: haxe_io_Bytes
+	var a = [];
+	var i = 0;
+	while(i < s.length) {
+		var c = s.charCodeAt(i++);
+		if(55296 <= c && c <= 56319) {
+			c = c - 55232 << 10 | s.charCodeAt(i++) & 1023;
+		}
+		if(c <= 127) {
+			a.push(c);
+		} else if(c <= 2047) {
+			a.push(192 | c >> 6);
+			a.push(128 | c & 63);
+		} else if(c <= 65535) {
+			a.push(224 | c >> 12);
+			a.push(128 | c >> 6 & 63);
+			a.push(128 | c & 63);
+		} else {
+			a.push(240 | c >> 18);
+			a.push(128 | c >> 12 & 63);
+			a.push(128 | c >> 6 & 63);
+			a.push(128 | c & 63);
+		}
+	}
+	return new haxe_io_Bytes(new Uint8Array(a).buffer);
+};
+haxe_io_Bytes.prototype = {
+	__class__: haxe_io_Bytes
+};
+var haxe_io_Encoding = $hxEnums["haxe.io.Encoding"] = { __ename__:true,__constructs__:null
+	,UTF8: {_hx_name:"UTF8",_hx_index:0,__enum__:"haxe.io.Encoding",toString:$estr}
+	,RawNative: {_hx_name:"RawNative",_hx_index:1,__enum__:"haxe.io.Encoding",toString:$estr}
+};
+haxe_io_Encoding.__constructs__ = [haxe_io_Encoding.UTF8,haxe_io_Encoding.RawNative];
+var haxe_io_Eof = function() {
+};
+haxe_io_Eof.__name__ = true;
+haxe_io_Eof.prototype = {
+	toString: function() {
+		return "Eof";
+	}
+	,__class__: haxe_io_Eof
+};
+var haxe_io_Error = $hxEnums["haxe.io.Error"] = { __ename__:true,__constructs__:null
+	,Blocked: {_hx_name:"Blocked",_hx_index:0,__enum__:"haxe.io.Error",toString:$estr}
+	,Overflow: {_hx_name:"Overflow",_hx_index:1,__enum__:"haxe.io.Error",toString:$estr}
+	,OutsideBounds: {_hx_name:"OutsideBounds",_hx_index:2,__enum__:"haxe.io.Error",toString:$estr}
+	,Custom: ($_=function(e) { return {_hx_index:3,e:e,__enum__:"haxe.io.Error",toString:$estr}; },$_._hx_name="Custom",$_.__params__ = ["e"],$_)
+};
+haxe_io_Error.__constructs__ = [haxe_io_Error.Blocked,haxe_io_Error.Overflow,haxe_io_Error.OutsideBounds,haxe_io_Error.Custom];
+var haxe_io_Input = function() { };
+haxe_io_Input.__name__ = true;
+var haxe_io_Output = function() { };
+haxe_io_Output.__name__ = true;
+haxe_io_Output.prototype = {
+	writeByte: function(c) {
+		throw new haxe_exceptions_NotImplementedException(null,null,{ fileName : "haxe/io/Output.hx", lineNumber : 47, className : "haxe.io.Output", methodName : "writeByte"});
+	}
+	,writeBytes: function(s,pos,len) {
+		if(pos < 0 || len < 0 || pos + len > s.length) {
+			throw haxe_Exception.thrown(haxe_io_Error.OutsideBounds);
+		}
+		var b = s.b;
+		var k = len;
+		while(k > 0) {
+			this.writeByte(b[pos]);
+			++pos;
+			--k;
+		}
+		return len;
+	}
+	,writeFullBytes: function(s,pos,len) {
+		while(len > 0) {
+			var k = this.writeBytes(s,pos,len);
+			pos += k;
+			len -= k;
+		}
+	}
+	,writeString: function(s,encoding) {
+		var b = haxe_io_Bytes.ofString(s,encoding);
+		this.writeFullBytes(b,0,b.length);
+	}
+	,__class__: haxe_io_Output
 };
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
 };
-haxe_iterators_ArrayIterator.__name__ = "haxe.iterators.ArrayIterator";
+haxe_iterators_ArrayIterator.__name__ = true;
 haxe_iterators_ArrayIterator.prototype = {
-	array: null
-	,current: null
-	,hasNext: function() {
+	hasNext: function() {
 		return this.current < this.array.length;
 	}
 	,next: function() {
@@ -1090,7 +223,7 @@ haxe_iterators_ArrayIterator.prototype = {
 	,__class__: haxe_iterators_ArrayIterator
 };
 var js_Boot = function() { };
-js_Boot.__name__ = "js.Boot";
+js_Boot.__name__ = true;
 js_Boot.getClass = function(o) {
 	if(o == null) {
 		return null;
@@ -1277,9 +410,6 @@ js_Boot.__downcastCheck = function(o,cl) {
 		return true;
 	}
 };
-js_Boot.__implements = function(o,iface) {
-	return js_Boot.__interfLoop(js_Boot.getClass(o),iface);
-};
 js_Boot.__cast = function(o,t) {
 	if(o == null || js_Boot.__instanceof(o,t)) {
 		return o;
@@ -1300,52 +430,38 @@ js_Boot.__isNativeObj = function(o) {
 js_Boot.__resolveNativeClass = function(name) {
 	return $global[name];
 };
+var js_node_Fs = require("fs");
+var js_node_KeyValue = {};
+js_node_KeyValue.get_key = function(this1) {
+	return this1[0];
+};
+js_node_KeyValue.get_value = function(this1) {
+	return this1[1];
+};
+var js_node_buffer_Buffer = require("buffer").Buffer;
+var js_node_stream_WritableNewOptionsAdapter = {};
+js_node_stream_WritableNewOptionsAdapter.from = function(options) {
+	if(!Object.prototype.hasOwnProperty.call(options,"final")) {
+		Object.defineProperty(options,"final",{ get : function() {
+			return options.final_;
+		}});
+	}
+	return options;
+};
 var polyboolhx_IBuildLog = function() { };
-polyboolhx_IBuildLog.__name__ = "polyboolhx.IBuildLog";
+polyboolhx_IBuildLog.__name__ = true;
 polyboolhx_IBuildLog.__isInterface__ = true;
 polyboolhx_IBuildLog.prototype = {
-	list: null
-	,nextSegmentId: null
-	,push: null
-	,info: null
-	,segmentId: null
-	,checkIntersection: null
-	,segmentDivide: null
-	,segmentChop: null
-	,statusRemove: null
-	,segmentUpdate: null
-	,segmentNew: null
-	,tempStatus: null
-	,rewind: null
-	,status: null
-	,vert: null
-	,selected: null
-	,chainStart: null
-	,chainNew: null
-	,chainMatch: null
-	,chainClose: null
-	,chainAddHead: null
-	,chainAddTail: null
-	,chainSimplifyHead: null
-	,chainSimplifyTail: null
-	,chainSimplifyClose: null
-	,chainSimplifyJoin: null
-	,chainReverse: null
-	,chainJoin: null
-	,chainConnect: null
-	,done: null
-	,__class__: polyboolhx_IBuildLog
+	__class__: polyboolhx_IBuildLog
 };
 var polyboolhx_NullBuildLog = function() {
 	this.nextSegmentId = 0;
 	this.list = [];
 };
-polyboolhx_NullBuildLog.__name__ = "polyboolhx.NullBuildLog";
+polyboolhx_NullBuildLog.__name__ = true;
 polyboolhx_NullBuildLog.__interfaces__ = [polyboolhx_IBuildLog];
 polyboolhx_NullBuildLog.prototype = {
-	list: null
-	,nextSegmentId: null
-	,push: function(type,data) {
+	push: function(type,data) {
 	}
 	,info: function(msg,data) {
 	}
@@ -1405,19 +521,16 @@ polyboolhx_NullBuildLog.prototype = {
 	,__class__: polyboolhx_NullBuildLog
 };
 var polyboolhx_BuildLog = function() { };
-polyboolhx_BuildLog.__name__ = "polyboolhx.BuildLog";
+polyboolhx_BuildLog.__name__ = true;
 var polyboolhx_ArrayBuildLog = function() {
 	this.list = [];
 	this.nextSegmentId = 0;
 	this.curVert = NaN;
 };
-polyboolhx_ArrayBuildLog.__name__ = "polyboolhx.ArrayBuildLog";
+polyboolhx_ArrayBuildLog.__name__ = true;
 polyboolhx_ArrayBuildLog.__interfaces__ = [polyboolhx_IBuildLog];
 polyboolhx_ArrayBuildLog.prototype = {
-	list: null
-	,nextSegmentId: null
-	,curVert: null
-	,push: function(type,data) {
+	push: function(type,data) {
 		this.list.push({ type : type, data : JSON.parse(JSON.stringify(data))});
 	}
 	,info: function(msg,data) {
@@ -1507,7 +620,7 @@ polyboolhx_ArrayBuildLog.prototype = {
 	,__class__: polyboolhx_ArrayBuildLog
 };
 var polyboolhx_GeometryUtils = function() { };
-polyboolhx_GeometryUtils.__name__ = "polyboolhx.GeometryUtils";
+polyboolhx_GeometryUtils.__name__ = true;
 polyboolhx_GeometryUtils.lerp = function(a,b,t) {
 	return a + (b - a) * t;
 };
@@ -1523,7 +636,7 @@ polyboolhx_GeometryUtils.boundingBoxesIntersect = function(bbox1,bbox2) {
 };
 var polyboolhx_Geometry = function() {
 };
-polyboolhx_Geometry.__name__ = "polyboolhx.Geometry";
+polyboolhx_Geometry.__name__ = true;
 polyboolhx_Geometry.prototype = {
 	snap0: function(v) {
 		throw haxe_Exception.thrown("Abstract method must be overridden");
@@ -1552,11 +665,10 @@ var polyboolhx_GeometryEpsilon = function(epsilon) {
 	polyboolhx_Geometry.call(this);
 	this.epsilon = epsilon;
 };
-polyboolhx_GeometryEpsilon.__name__ = "polyboolhx.GeometryEpsilon";
+polyboolhx_GeometryEpsilon.__name__ = true;
 polyboolhx_GeometryEpsilon.__super__ = polyboolhx_Geometry;
 polyboolhx_GeometryEpsilon.prototype = $extend(polyboolhx_Geometry.prototype,{
-	epsilon: null
-	,snap0: function(v) {
+	snap0: function(v) {
 		if(Math.abs(v) < this.epsilon) {
 			return 0;
 		}
@@ -1679,20 +791,15 @@ var polyboolhx_SegmentBool = function(data,fill,closed) {
 	this.myFill = { above : fill != null && fill.above != null ? fill.above : null, below : fill != null && fill.below != null ? fill.below : null};
 	this.closed = closed;
 };
-polyboolhx_SegmentBool.__name__ = "polyboolhx.SegmentBool";
+polyboolhx_SegmentBool.__name__ = true;
 polyboolhx_SegmentBool.prototype = {
-	id: null
-	,data: null
-	,myFill: null
-	,otherFill: null
-	,closed: null
-	,get_data: function() {
+	get_data: function() {
 		return this.data;
 	}
 	,__class__: polyboolhx_SegmentBool
 };
 var polyboolhx_IntersectorUtils = function() { };
-polyboolhx_IntersectorUtils.__name__ = "polyboolhx.IntersectorUtils";
+polyboolhx_IntersectorUtils.__name__ = true;
 polyboolhx_IntersectorUtils.copySegmentBool = function(seg) {
 	return new polyboolhx_SegmentBool(seg.data,seg.myFill,seg.closed);
 };
@@ -1712,23 +819,16 @@ var polyboolhx_EventBool = function(isStart,p,seg,primary) {
 	this.seg = seg;
 	this.primary = primary;
 };
-polyboolhx_EventBool.__name__ = "polyboolhx.EventBool";
+polyboolhx_EventBool.__name__ = true;
 polyboolhx_EventBool.prototype = {
-	isStart: null
-	,p: null
-	,seg: null
-	,primary: null
-	,other: null
-	,status: null
-	,__class__: polyboolhx_EventBool
+	__class__: polyboolhx_EventBool
 };
 var polyboolhx_ListBool = function() {
 	this.nodes = [];
 };
-polyboolhx_ListBool.__name__ = "polyboolhx.ListBool";
+polyboolhx_ListBool.__name__ = true;
 polyboolhx_ListBool.prototype = {
-	nodes: null
-	,remove: function(node) {
+	remove: function(node) {
 		var i = this.nodes.indexOf(node);
 		if(i >= 0) {
 			this.nodes.splice(i,1);
@@ -1778,14 +878,9 @@ var polyboolhx_Intersector = function(selfIntersection,geo) {
 	this.selfIntersection = selfIntersection;
 	this.geo = geo;
 };
-polyboolhx_Intersector.__name__ = "polyboolhx.Intersector";
+polyboolhx_Intersector.__name__ = true;
 polyboolhx_Intersector.prototype = {
-	selfIntersection: null
-	,geo: null
-	,events: null
-	,status: null
-	,currentPath: null
-	,compareEvents: function(aStart,a1,a2,aSeg,bStart,b1,b2,bSeg) {
+	compareEvents: function(aStart,a1,a2,aSeg,bStart,b1,b2,bSeg) {
 		var comp = this.geo.compareVec2(a1,b1);
 		if(comp != 0) {
 			return comp;
@@ -2152,10 +1247,9 @@ var polyboolhx_PolyBool = function(geo) {
 	}
 	this.geo = geo;
 };
-polyboolhx_PolyBool.__name__ = "polyboolhx.PolyBool";
+polyboolhx_PolyBool.__name__ = true;
 polyboolhx_PolyBool.prototype = {
-	geo: null
-	,shape: function() {
+	shape: function() {
 		return new polyboolhx_Shape(this.geo,null);
 	}
 	,buildLog: function(enable) {
@@ -2264,37 +1358,32 @@ polyboolhx_PolyBool.prototype = {
 	,__class__: polyboolhx_PolyBool
 };
 var polyboolhx_SegmentPairs = function() { };
-polyboolhx_SegmentPairs.__name__ = "polyboolhx.SegmentPairs";
+polyboolhx_SegmentPairs.__name__ = true;
 polyboolhx_SegmentPairs.__isInterface__ = true;
 var polyboolhx_SegmentTValuePairs = function(tValuePairs) {
 	this.tValuePairs = tValuePairs;
 };
-polyboolhx_SegmentTValuePairs.__name__ = "polyboolhx.SegmentTValuePairs";
+polyboolhx_SegmentTValuePairs.__name__ = true;
 polyboolhx_SegmentTValuePairs.__interfaces__ = [polyboolhx_SegmentPairs];
 polyboolhx_SegmentTValuePairs.prototype = {
-	tValuePairs: null
-	,__class__: polyboolhx_SegmentTValuePairs
+	__class__: polyboolhx_SegmentTValuePairs
 };
 var polyboolhx_SegmentTRangePairs = function(tStart,tEnd) {
 	this.tStart = tStart;
 	this.tEnd = tEnd;
 };
-polyboolhx_SegmentTRangePairs.__name__ = "polyboolhx.SegmentTRangePairs";
+polyboolhx_SegmentTRangePairs.__name__ = true;
 polyboolhx_SegmentTRangePairs.__interfaces__ = [polyboolhx_SegmentPairs];
 polyboolhx_SegmentTRangePairs.prototype = {
-	tStart: null
-	,tEnd: null
-	,__class__: polyboolhx_SegmentTRangePairs
+	__class__: polyboolhx_SegmentTRangePairs
 };
 var polyboolhx_SegmentTValuesBuilder = function(geo) {
 	this.tValues = [];
 	this.geo = geo;
 };
-polyboolhx_SegmentTValuesBuilder.__name__ = "polyboolhx.SegmentTValuesBuilder";
+polyboolhx_SegmentTValuesBuilder.__name__ = true;
 polyboolhx_SegmentTValuesBuilder.prototype = {
-	tValues: null
-	,geo: null
-	,addArray: function(ts) {
+	addArray: function(ts) {
 		var _g = 0;
 		while(_g < ts.length) {
 			var t = ts[_g];
@@ -2341,12 +1430,9 @@ var polyboolhx_SegmentTValuePairsBuilder = function(allowOutOfRange,geo) {
 	this.allowOutOfRange = allowOutOfRange;
 	this.geo = geo;
 };
-polyboolhx_SegmentTValuePairsBuilder.__name__ = "polyboolhx.SegmentTValuePairsBuilder";
+polyboolhx_SegmentTValuePairsBuilder.__name__ = true;
 polyboolhx_SegmentTValuePairsBuilder.prototype = {
-	tValuePairs: null
-	,allowOutOfRange: null
-	,geo: null
-	,add: function(t1,t2) {
+	add: function(t1,t2) {
 		t1 = this.geo.snap01(t1);
 		t2 = this.geo.snap01(t2);
 		if(!this.allowOutOfRange && (t1 < 0 || t1 > 1 || t2 < 0 || t2 > 1)) {
@@ -2381,7 +1467,7 @@ polyboolhx_SegmentTValuePairsBuilder.prototype = {
 };
 var polyboolhx_SegmentBase = function() {
 };
-polyboolhx_SegmentBase.__name__ = "polyboolhx.SegmentBase";
+polyboolhx_SegmentBase.__name__ = true;
 polyboolhx_SegmentBase.prototype = {
 	isLine: function() {
 		return ((this) instanceof polyboolhx_SegmentLine);
@@ -2431,18 +1517,10 @@ polyboolhx_SegmentBase.prototype = {
 	,__class__: polyboolhx_SegmentBase
 };
 var polyboolhx_Segment = function() { };
-polyboolhx_Segment.__name__ = "polyboolhx.Segment";
+polyboolhx_Segment.__name__ = true;
 polyboolhx_Segment.__isInterface__ = true;
 polyboolhx_Segment.prototype = {
-	start: null
-	,start2: null
-	,pointOn: null
-	,point: null
-	,end: null
-	,setStart: null
-	,setEnd: null
-	,isLine: null
-	,__class__: polyboolhx_Segment
+	__class__: polyboolhx_Segment
 };
 var polyboolhx_SegmentLine = function(p0,p1,geo) {
 	polyboolhx_SegmentBase.call(this);
@@ -2450,14 +1528,11 @@ var polyboolhx_SegmentLine = function(p0,p1,geo) {
 	this.p1 = p1;
 	this.geo = geo;
 };
-polyboolhx_SegmentLine.__name__ = "polyboolhx.SegmentLine";
+polyboolhx_SegmentLine.__name__ = true;
 polyboolhx_SegmentLine.__interfaces__ = [polyboolhx_Segment];
 polyboolhx_SegmentLine.__super__ = polyboolhx_SegmentBase;
 polyboolhx_SegmentLine.prototype = $extend(polyboolhx_SegmentBase.prototype,{
-	p0: null
-	,p1: null
-	,geo: null
-	,copy: function() {
+	copy: function() {
 		return new polyboolhx_SegmentLine(this.p0,this.p1,this.geo);
 	}
 	,isEqual: function(other) {
@@ -2549,16 +1624,11 @@ var polyboolhx_SegmentCurve = function(p0,p1,p2,p3,geo) {
 	this.p3 = p3;
 	this.geo = geo;
 };
-polyboolhx_SegmentCurve.__name__ = "polyboolhx.SegmentCurve";
+polyboolhx_SegmentCurve.__name__ = true;
 polyboolhx_SegmentCurve.__interfaces__ = [polyboolhx_Segment];
 polyboolhx_SegmentCurve.__super__ = polyboolhx_SegmentBase;
 polyboolhx_SegmentCurve.prototype = $extend(polyboolhx_SegmentBase.prototype,{
-	p0: null
-	,p1: null
-	,p2: null
-	,p3: null
-	,geo: null
-	,copy: function() {
+	copy: function() {
 		return new polyboolhx_SegmentCurve(this.p0,this.p1,this.p2,this.p3,this.geo);
 	}
 	,isEqual: function(other) {
@@ -2833,7 +1903,7 @@ polyboolhx_SegmentCurve.prototype = $extend(polyboolhx_SegmentBase.prototype,{
 	,__class__: polyboolhx_SegmentCurve
 });
 var polyboolhx_SegmentUtils = function() { };
-polyboolhx_SegmentUtils.__name__ = "polyboolhx.SegmentUtils";
+polyboolhx_SegmentUtils.__name__ = true;
 polyboolhx_SegmentUtils.projectPointOntoSegmentLine = function(p,seg) {
 	var dx = seg.p1[0] - seg.p0[0];
 	var dy = seg.p1[1] - seg.p0[1];
@@ -3008,7 +2078,7 @@ polyboolhx_SegmentUtils.reverse = function(seg) {
 	}
 };
 var polyboolhx_SegmentChainerUtils = function() { };
-polyboolhx_SegmentChainerUtils.__name__ = "polyboolhx.SegmentChainerUtils";
+polyboolhx_SegmentChainerUtils.__name__ = true;
 polyboolhx_SegmentChainerUtils.joinLines = function(seg1,seg2,geo) {
 	if(geo.isCollinear(seg1.p0,seg1.p1,seg2.p1)) {
 		return new polyboolhx_SegmentLine(seg1.p0,seg2.p1,geo);
@@ -3097,7 +2167,7 @@ polyboolhx_SegmentChainerUtils.segmentsToReceiver = function(segments,geo,receiv
 	return receiver;
 };
 var polyboolhx_SegmentChainer = function() { };
-polyboolhx_SegmentChainer.__name__ = "polyboolhx.SegmentChainer";
+polyboolhx_SegmentChainer.__name__ = true;
 polyboolhx_SegmentChainer.chain = function(segments,geo) {
 	var closedChains = [];
 	var openChains = [];
@@ -3331,7 +2401,7 @@ polyboolhx_SegmentChainer.chain = function(segments,geo) {
 	return regions;
 };
 var polyboolhx_SegmentSelector = function() { };
-polyboolhx_SegmentSelector.__name__ = "polyboolhx.SegmentSelector";
+polyboolhx_SegmentSelector.__name__ = true;
 polyboolhx_SegmentSelector.union = function(segments) {
 	return polyboolhx_SegmentSelector.select(segments,[4,2,1,0,2,2,0,0,1,0,1,0,0,0,0,0]);
 };
@@ -3376,14 +2446,9 @@ var polyboolhx_Shape = function(geo,segments) {
 		this.resultState = { state : "new", selfIntersect : new polyboolhx_Intersector(true,this.geo)};
 	}
 };
-polyboolhx_Shape.__name__ = "polyboolhx.Shape";
+polyboolhx_Shape.__name__ = true;
 polyboolhx_Shape.prototype = {
-	geo: null
-	,pathState: null
-	,resultState: null
-	,saveStack: null
-	,matrix: null
-	,setTransform: function(a,b,c,d,e,f) {
+	setTransform: function(a,b,c,d,e,f) {
 		if(this.resultState.state != "new") {
 			throw new haxe_Exception("PolyBool: Cannot change shape after using it in an operation");
 		}
@@ -3638,11 +2703,9 @@ var polyboolhx_ShapeCombined = function(segments,geo) {
 	this.geo = geo;
 	this.segments = segments;
 };
-polyboolhx_ShapeCombined.__name__ = "polyboolhx.ShapeCombined";
+polyboolhx_ShapeCombined.__name__ = true;
 polyboolhx_ShapeCombined.prototype = {
-	geo: null
-	,segments: null
-	,union: function() {
+	union: function() {
 		return new polyboolhx_Shape(this.geo,polyboolhx_SegmentSelector.union(this.segments));
 	}
 	,intersect: function() {
@@ -3659,87 +2722,390 @@ polyboolhx_ShapeCombined.prototype = {
 	}
 	,__class__: polyboolhx_ShapeCombined
 };
-var polyboolhx_test_Receiver = function() {
-	this.log = [];
+var polyboolhx_test_ExecutionTimer = function() { };
+polyboolhx_test_ExecutionTimer.__name__ = true;
+polyboolhx_test_ExecutionTimer.start = function(key) {
+	var _this = polyboolhx_test_ExecutionTimer._spans;
+	var value = new Date().getTime();
+	_this.h[key] = value;
 };
-polyboolhx_test_Receiver.__name__ = "polyboolhx.test.Receiver";
-polyboolhx_test_Receiver.prototype = {
-	log: null
-	,beginPath: function() {
-		this.log.push("beginPath");
+polyboolhx_test_ExecutionTimer.end = function(key) {
+	var start = polyboolhx_test_ExecutionTimer._spans.h[key];
+	var duration = 0.0;
+	if(start != null) {
+		duration = new Date().getTime() - start;
+		console.log("src/polyboolhx/test/ExecutionTimer.hx:25:","" + key + " took " + duration + "ms");
 	}
-	,moveTo: function(x,y) {
-		this.log = this.log.concat(["moveTo",x,y]);
-	}
-	,lineTo: function(x,y) {
-		this.log = this.log.concat(["lineTo",x,y]);
-	}
-	,bezierCurveTo: function(cp1x,cp1y,cp2x,cp2y,x,y) {
-		this.log.push(["bezierCurveTo",cp1x,cp1y,cp2x,cp2y,x,y]);
-	}
-	,closePath: function() {
-		this.log.push("closePath");
-	}
-	,done: function() {
-		return this.log;
-	}
-	,__class__: polyboolhx_test_Receiver
+	return duration;
 };
-var polyboolhx_test_TestRunner = function() { };
-polyboolhx_test_TestRunner.__name__ = "polyboolhx.test.TestRunner";
-polyboolhx_test_TestRunner.assertEqual = function(a,b) {
-	var _g = deepequal_DeepEqual.compare(a,b,{ fileName : "src/polyboolhx/test/TestRunner.hx", lineNumber : 97, className : "polyboolhx.test.TestRunner", methodName : "assertEqual"});
-	switch(_g._hx_index) {
-	case 0:
-		var _g1 = _g.s;
-		return true;
-	case 1:
-		var f = _g.f;
-		throw new haxe_Exception("Values not equal");
+var polyboolhx_test_VisualTest = function(name,sourceRegions,algorithm,options) {
+	if(algorithm == null) {
+		algorithm = "simple";
 	}
+	this.name = name;
+	this.algorithm = algorithm;
+	this.sources = [];
+	var _g = 0;
+	while(_g < sourceRegions.length) {
+		var region = sourceRegions[_g];
+		++_g;
+		this.sources.push(this.makePoly(region));
+	}
+	this.options = options;
 };
-polyboolhx_test_TestRunner.main = function() {
-	var polybool = new polyboolhx_PolyBool();
-	polybool.buildLog(true);
-	var tests = [{ name : "basic intersection", func : function() {
-		return polyboolhx_test_TestRunner.assertEqual(polybool.intersect(polyboolhx_test_TestRunner.triangle1,polyboolhx_test_TestRunner.triangle2),{ regions : [[[10.0,0.0],[5.0,0.0],[7.5,5.0]]], inverted : false});
-	}},{ name : "basic union", func : function() {
-		return polyboolhx_test_TestRunner.assertEqual(polybool.union(polyboolhx_test_TestRunner.triangle1,polyboolhx_test_TestRunner.triangle2),{ regions : [[[10.0,10.0],[7.5,5],[5.0,10.0],[0.0,0.0],[15.0,0.0]]], inverted : false});
-	}},{ name : "union with curve", func : function() {
-		return polyboolhx_test_TestRunner.assertEqual(polybool.union(polyboolhx_test_TestRunner.box1,polyboolhx_test_TestRunner.curve1),{ regions : [[[10.0,0.0],[10.0,-2.5,7.5,-3.75,5.0,-3.75],[5.0,-5.0],[0.0,-5.0],[0.0,0.0]]], inverted : false});
-	}},{ name : "example", func : function() {
-		var log = polybool.shape().beginPath().moveTo(50,50).lineTo(150,150).lineTo(190,50).closePath().moveTo(130,50).lineTo(290,150).lineTo(290,50).closePath().combine(polybool.shape().beginPath().moveTo(110,20).lineTo(110,110).lineTo(20,20).closePath().moveTo(130,170).lineTo(130,20).lineTo(260,20).lineTo(260,170).closePath()).intersect().output(new polyboolhx_test_Receiver()).done();
-		return polyboolhx_test_TestRunner.assertEqual(log,["beginPath","moveTo",110,110,"lineTo",50,50,"lineTo",110,50,"lineTo",110,110,"closePath","moveTo",150,150,"lineTo",178,80,"lineTo",130,50,"lineTo",130,130,"lineTo",150,150,"closePath","moveTo",260,131.25,"lineTo",178,80,"lineTo",190,50,"lineTo",260,50,"lineTo",260,131.25,"closePath"]);
-	}},{ name : "transforms", func : function() {
-		var log = polybool.shape().setTransform(3,0,0,2,100,200).beginPath().moveTo(50,50).lineTo(-10,50).lineTo(10,10).closePath().output(new polyboolhx_test_Receiver()).done();
-		return polyboolhx_test_TestRunner.assertEqual(log,["beginPath","moveTo",250,300,"lineTo",70,300,"lineTo",130,220,"lineTo",250,300,"closePath"]);
-	}}];
-	var pass = 0;
-	var fail = 0;
+polyboolhx_test_VisualTest.__name__ = true;
+polyboolhx_test_VisualTest.prototype = {
+	run: function() {
+		var label = this.name + " (algo:" + this.algorithm + ")";
+		polyboolhx_test_ExecutionTimer.start(label);
+		var unified = null;
+		if(this.algorithm == "efficient") {
+			unified = this.polyboolEfficient();
+		} else if(this.algorithm == "cascading_union") {
+			unified = this.cascadingUnion();
+		} else {
+			unified = this.simpleUnion();
+		}
+		var duration = polyboolhx_test_ExecutionTimer.end(label);
+		var filename = "" + this.name + ".svg";
+		var svg = this.generateSVG(this.sources,unified,"" + this.name + " " + duration + "ms");
+		var output = new sys_io_FileOutput(js_node_Fs.openSync("dist/polyboolhx/js/vistest/" + filename,"w"));
+		output.writeString(svg);
+		output.close();
+		return filename;
+	}
+	,simpleUnion: function() {
+		var polyBool = new polyboolhx_PolyBool();
+		var unified = this.sources[0];
+		var _g = 1;
+		var _g1 = this.sources.length;
+		while(_g < _g1) {
+			var i = _g++;
+			unified = polyBool.union(unified,this.sources[i]);
+		}
+		return unified;
+	}
+	,polyboolEfficient: function() {
+		var polyBool = new polyboolhx_PolyBool();
+		var segments = polyBool.segments(this.sources[0]);
+		var _g = 1;
+		var _g1 = this.sources.length;
+		while(_g < _g1) {
+			var i = _g++;
+			var seg2 = polyBool.segments(this.sources[i]);
+			var comb = polyBool.combine(segments,seg2);
+			segments = polyBool.selectUnion(comb);
+		}
+		return polyBool.polygon(segments);
+	}
+	,cascadingUnion: function(caching) {
+		if(caching == null) {
+			caching = false;
+		}
+		var polyBool = new polyboolhx_PolyBool();
+		var allUnified = [];
+		var cache_h = Object.create(null);
+		var cacheKey = "";
+		var _g = 0;
+		var _g1 = this.sources;
+		while(_g < _g1.length) {
+			var src = _g1[_g];
+			++_g;
+			allUnified.push(src);
+		}
+		var unify4Adjacent = function(width,height) {
+			var y = 0;
+			var unified = [];
+			while(y < height) {
+				var x = 0;
+				while(x < width) {
+					var idx = x + y * width;
+					var idx2 = x + (y + 1) * width;
+					var pts = [allUnified[idx]];
+					if(allUnified.length > idx + 1) {
+						pts.push(allUnified[idx + 1]);
+					}
+					if(allUnified.length > idx2) {
+						pts.push(allUnified[idx2]);
+					}
+					if(allUnified.length > idx2 + 1) {
+						pts.push(allUnified[idx2 + 1]);
+					}
+					if(caching) {
+						cacheKey = JSON.stringify(pts);
+						if(Object.prototype.hasOwnProperty.call(cache_h,cacheKey)) {
+							unified.push(cache_h[cacheKey]);
+							continue;
+						}
+					}
+					var adjacentUnified = pts[0];
+					var _g = 1;
+					var _g1 = pts.length;
+					while(_g < _g1) {
+						var i = _g++;
+						adjacentUnified = polyBool.union(adjacentUnified,pts[i]);
+					}
+					unified.push(adjacentUnified);
+					x += 2;
+				}
+				y += 2;
+			}
+			return unified;
+		};
+		var width = this.options.width;
+		var height = this.options.height;
+		while(allUnified.length != 1) {
+			allUnified = unify4Adjacent(width,height);
+			width = Math.ceil(width / 2);
+			height = Math.ceil(height / 2);
+		}
+		return allUnified[0];
+	}
+	,generateSVG: function(sources,union,label) {
+		if(label == null) {
+			label = "";
+		}
+		var extremes_minX = 10000.0;
+		var extremes_maxX = -10000.0;
+		var extremes_minY = 10000.0;
+		var extremes_maxY = -10000.0;
+		var _g = 0;
+		var _g1 = union.regions;
+		while(_g < _g1.length) {
+			var region = _g1[_g];
+			++_g;
+			var _g2 = 0;
+			while(_g2 < region.length) {
+				var p = region[_g2];
+				++_g2;
+				if(p[0] < extremes_minX) {
+					extremes_minX = p[0];
+				}
+				if(p[0] > extremes_maxX) {
+					extremes_maxX = p[0];
+				}
+				if(p[1] < extremes_minY) {
+					extremes_minY = p[1];
+				}
+				if(p[1] > extremes_maxY) {
+					extremes_maxY = p[1];
+				}
+			}
+		}
+		var width = extremes_maxX - extremes_minX;
+		var height = extremes_maxY - extremes_minY;
+		var svg = "<svg width=\"" + width + "\" height=\"" + height + "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+		var _g = 0;
+		while(_g < sources.length) {
+			var source = sources[_g];
+			++_g;
+			svg += this.generateSVGPath(source,"rgba(0, 0, 0, 0.3)","rgba(0, 0, 0, 0.3)",0 - extremes_minX,0 - extremes_minY);
+		}
+		svg += this.generateSVGPath(union,"rgba(0, 255, 0, 0.7)","green",0 - extremes_minX,0 - extremes_minY);
+		svg += "<text x=\"10\" y=\"20\">" + label + "</text>";
+		svg += "</svg>";
+		return svg;
+	}
+	,generateSVGPath: function(polygon,fillStyle,strokeStyle,offsetX,offsetY) {
+		if(offsetY == null) {
+			offsetY = 0.0;
+		}
+		if(offsetX == null) {
+			offsetX = 0.0;
+		}
+		if(strokeStyle == null) {
+			strokeStyle = "green";
+		}
+		if(fillStyle == null) {
+			fillStyle = "rgba(0, 255, 0, 0.5)";
+		}
+		var result = "";
+		var pt = function(p) {
+			return [p[0] + offsetX,p[1] + offsetY];
+		};
+		var _g = 0;
+		var _g1 = polygon.regions;
+		while(_g < _g1.length) {
+			var region = _g1[_g];
+			++_g;
+			var pathData = "";
+			var firstPoint = pt(region[0]);
+			pathData += "M" + firstPoint[0] + "," + firstPoint[1] + " ";
+			var _g2 = 1;
+			var _g3 = region.length;
+			while(_g2 < _g3) {
+				var i = _g2++;
+				var point = pt(region[i]);
+				if(point.length == 2) {
+					pathData += "L" + point[0] + "," + point[1] + " ";
+				} else if(point.length == 6) {
+					pathData += "C" + point[0] + "," + point[1] + " " + point[2] + "," + point[3] + " " + point[4] + "," + point[5] + " ";
+				}
+			}
+			pathData += "Z";
+			result += "<path d=\"" + pathData + "\" fill=\"" + fillStyle + "\" stroke=\"" + strokeStyle + "\" stroke-width=\"2\" />\n";
+		}
+		return result;
+	}
+	,makePoly: function(paths) {
+		return { regions : paths, inverted : false};
+	}
+	,__class__: polyboolhx_test_VisualTest
+};
+var polyboolhx_test_VisualTestRunner = function() { };
+polyboolhx_test_VisualTestRunner.__name__ = true;
+polyboolhx_test_VisualTestRunner.main = function() {
+	var tests = [new polyboolhx_test_VisualTest("simple",[[[[100.0,100.0],[300.0,100.0],[300.0,300.0],[100.0,300.0]]],[[[200.0,200.0],[400.0,200.0],[400.0,400.0],[200.0,400.0]]]]),new polyboolhx_test_VisualTest("l_shape_overlap",[[[[100.0,100.0],[300.0,100.0],[300.0,200.0],[200.0,200.0],[200.0,300.0],[100.0,300.0]]],[[[150.0,150.0],[350.0,150.0],[350.0,250.0],[150.0,250.0]]]]),new polyboolhx_test_VisualTest("edge_touching",[[[[100.0,100.0],[200.0,100.0],[200.0,200.0],[100.0,200.0]]],[[[200.0,100.0],[300.0,100.0],[300.0,200.0],[200.0,200.0]]]]),new polyboolhx_test_VisualTest("complex_vs_square",[[[[50.0,50.0],[150.0,50.0],[150.0,150.0],[50.0,150.0],[50.0,250.0],[150.0,250.0],[150.0,350.0],[50.0,350.0]]],[[[100.0,200.0],[200.0,200.0],[200.0,300.0],[100.0,300.0]]]]),new polyboolhx_test_VisualTest("angled_lines",[[[[200.0,100.0],[300.0,200.0],[200.0,300.0],[100.0,200.0]]],[[[150.0,120.0],[250.0,120.0],[200.0,220.0]]]]),new polyboolhx_test_VisualTest("grid_small",polyboolhx_test_VisualTestRunner.generateGrid(25,25,10,10)),new polyboolhx_test_VisualTest("efficent_grid_small",polyboolhx_test_VisualTestRunner.generateGrid(25,25,10,10),"efficient"),new polyboolhx_test_VisualTest("cascading_union_small",polyboolhx_test_VisualTestRunner.generateGrid(25,25,10,10),"cascading_union",{ width : 25, height : 25}),new polyboolhx_test_VisualTest("grid_big",polyboolhx_test_VisualTestRunner.generateGrid(100,100,10,10)),new polyboolhx_test_VisualTest("efficent_grid_big",polyboolhx_test_VisualTestRunner.generateGrid(100,100,10,10),"efficient"),new polyboolhx_test_VisualTest("cascading_union_big",polyboolhx_test_VisualTestRunner.generateGrid(100,100,10,10),"cascading_union",{ width : 100, height : 100})];
+	var html = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<title>PolyBoolHx Visual Test</title>\n</head>\n<body>";
 	var _g = 0;
 	while(_g < tests.length) {
 		var test = tests[_g];
 		++_g;
-		try {
-			test.func();
-			haxe_Log.trace("pass " + test.name,{ fileName : "src/polyboolhx/test/TestRunner.hx", lineNumber : 246, className : "polyboolhx.test.TestRunner", methodName : "main"});
-			++pass;
-		} catch( _g1 ) {
-			var err = haxe_Exception.caught(_g1);
-			haxe_Log.trace("FAIL " + test.name,{ fileName : "src/polyboolhx/test/TestRunner.hx", lineNumber : 249, className : "polyboolhx.test.TestRunner", methodName : "main"});
-			haxe_Log.trace("" + test.name + " failed:",{ fileName : "src/polyboolhx/test/TestRunner.hx", lineNumber : 250, className : "polyboolhx.test.TestRunner", methodName : "main", customParams : [err]});
-			++fail;
+		var svg = test.run();
+		html += "\n<div><img src=\"" + svg + "\"></div>";
+	}
+	html += "\n</body>\n</html>";
+	var output = new sys_io_FileOutput(js_node_Fs.openSync("dist/polyboolhx/js/vistest/vistest.html","w"));
+	output.writeString(html);
+	output.close();
+};
+polyboolhx_test_VisualTestRunner.generateGrid = function(rows,cols,squareWidth,squareHeight) {
+	var regions = [];
+	var _g = 0;
+	var _g1 = rows;
+	while(_g < _g1) {
+		var i = _g++;
+		var _g2 = 0;
+		var _g3 = cols;
+		while(_g2 < _g3) {
+			var j = _g2++;
+			var x = j * squareWidth;
+			var y = i * squareHeight;
+			regions.push([[[x,y],[x + squareWidth,y],[x + squareWidth,y + squareHeight],[x,y + squareHeight]]]);
 		}
 	}
-	haxe_Log.trace("\nPass: " + pass + "\nFail: " + fail,{ fileName : "src/polyboolhx/test/TestRunner.hx", lineNumber : 254, className : "polyboolhx.test.TestRunner", methodName : "main"});
+	return regions;
 };
-if(typeof(performance) != "undefined" ? typeof(performance.now) == "function" : false) {
-	HxOverrides.now = performance.now.bind(performance);
-}
-if( String.fromCodePoint == null ) String.fromCodePoint = function(c) { return c < 0x10000 ? String.fromCharCode(c) : String.fromCharCode((c>>10)+0xD7C0)+String.fromCharCode((c&0x3FF)+0xDC00); }
+var sys_io_FileInput = function(fd) {
+	this.fd = fd;
+	this.pos = 0;
+};
+sys_io_FileInput.__name__ = true;
+sys_io_FileInput.__super__ = haxe_io_Input;
+sys_io_FileInput.prototype = $extend(haxe_io_Input.prototype,{
+	readByte: function() {
+		var buf = js_node_buffer_Buffer.alloc(1);
+		var bytesRead;
+		try {
+			bytesRead = js_node_Fs.readSync(this.fd,buf,0,1,this.pos);
+		} catch( _g ) {
+			var e = haxe_Exception.caught(_g).unwrap();
+			if(e.code == "EOF") {
+				throw haxe_Exception.thrown(new haxe_io_Eof());
+			} else {
+				throw haxe_Exception.thrown(haxe_io_Error.Custom(e));
+			}
+		}
+		if(bytesRead == 0) {
+			throw haxe_Exception.thrown(new haxe_io_Eof());
+		}
+		this.pos++;
+		return buf[0];
+	}
+	,readBytes: function(s,pos,len) {
+		var data = s.b;
+		var buf = js_node_buffer_Buffer.from(data.buffer,data.byteOffset,s.length);
+		var bytesRead;
+		try {
+			bytesRead = js_node_Fs.readSync(this.fd,buf,pos,len,this.pos);
+		} catch( _g ) {
+			var e = haxe_Exception.caught(_g).unwrap();
+			if(e.code == "EOF") {
+				throw haxe_Exception.thrown(new haxe_io_Eof());
+			} else {
+				throw haxe_Exception.thrown(haxe_io_Error.Custom(e));
+			}
+		}
+		if(bytesRead == 0) {
+			throw haxe_Exception.thrown(new haxe_io_Eof());
+		}
+		this.pos += bytesRead;
+		return bytesRead;
+	}
+	,close: function() {
+		js_node_Fs.closeSync(this.fd);
+	}
+	,seek: function(p,pos) {
+		switch(pos._hx_index) {
+		case 0:
+			this.pos = p;
+			break;
+		case 1:
+			this.pos += p;
+			break;
+		case 2:
+			this.pos = js_node_Fs.fstatSync(this.fd).size + p;
+			break;
+		}
+	}
+	,tell: function() {
+		return this.pos;
+	}
+	,eof: function() {
+		return this.pos >= js_node_Fs.fstatSync(this.fd).size;
+	}
+	,__class__: sys_io_FileInput
+});
+var sys_io_FileOutput = function(fd) {
+	this.fd = fd;
+	this.pos = 0;
+};
+sys_io_FileOutput.__name__ = true;
+sys_io_FileOutput.__super__ = haxe_io_Output;
+sys_io_FileOutput.prototype = $extend(haxe_io_Output.prototype,{
+	writeByte: function(b) {
+		var buf = js_node_buffer_Buffer.alloc(1);
+		buf[0] = b;
+		js_node_Fs.writeSync(this.fd,buf,0,1,this.pos);
+		this.pos++;
+	}
+	,writeBytes: function(s,pos,len) {
+		var data = s.b;
+		var buf = js_node_buffer_Buffer.from(data.buffer,data.byteOffset,s.length);
+		var wrote = js_node_Fs.writeSync(this.fd,buf,pos,len,this.pos);
+		this.pos += wrote;
+		return wrote;
+	}
+	,close: function() {
+		js_node_Fs.closeSync(this.fd);
+	}
+	,seek: function(p,pos) {
+		switch(pos._hx_index) {
+		case 0:
+			this.pos = p;
+			break;
+		case 1:
+			this.pos += p;
+			break;
+		case 2:
+			this.pos = js_node_Fs.fstatSync(this.fd).size + p;
+			break;
+		}
+	}
+	,tell: function() {
+		return this.pos;
+	}
+	,__class__: sys_io_FileOutput
+});
+var sys_io_FileSeek = $hxEnums["sys.io.FileSeek"] = { __ename__:true,__constructs__:null
+	,SeekBegin: {_hx_name:"SeekBegin",_hx_index:0,__enum__:"sys.io.FileSeek",toString:$estr}
+	,SeekCur: {_hx_name:"SeekCur",_hx_index:1,__enum__:"sys.io.FileSeek",toString:$estr}
+	,SeekEnd: {_hx_name:"SeekEnd",_hx_index:2,__enum__:"sys.io.FileSeek",toString:$estr}
+};
+sys_io_FileSeek.__constructs__ = [sys_io_FileSeek.SeekBegin,sys_io_FileSeek.SeekCur,sys_io_FileSeek.SeekEnd];
 String.prototype.__class__ = String;
-String.__name__ = "String";
-Array.__name__ = "Array";
+String.__name__ = true;
+Array.__name__ = true;
 Date.prototype.__class__ = Date;
 Date.__name__ = "Date";
 var Int = { };
@@ -3749,16 +3115,9 @@ var Bool = Boolean;
 var Class = { };
 var Enum = { };
 js_Boot.__toStr = ({ }).toString;
-DateTools.DAY_SHORT_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-DateTools.DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-DateTools.MONTH_SHORT_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-DateTools.MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 polyboolhx_BuildLog.log = new polyboolhx_NullBuildLog();
-polyboolhx_test_TestRunner.triangle1 = { regions : [[[0.0,0.0],[5.0,10.0],[10.0,0.0]]], inverted : false};
-polyboolhx_test_TestRunner.triangle2 = { regions : [[[5.0,0.0],[10.0,10.0],[15.0,0.0]]], inverted : false};
-polyboolhx_test_TestRunner.box1 = { regions : [[[0.0,0.0],[5.0,0.0],[5.0,-5.0],[0.0,-5.0]]], inverted : false};
-polyboolhx_test_TestRunner.curve1 = { regions : [[[0.0,0.0],[0.0,-5.0,10.0,-5.0,10.0,0.0]]], inverted : false};
-polyboolhx_test_TestRunner.main();
+polyboolhx_test_ExecutionTimer._spans = new haxe_ds_StringMap();
+polyboolhx_test_VisualTestRunner.main();
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
 
-//# sourceMappingURL=polybool.js.map
+//# sourceMappingURL=vistest.js.map

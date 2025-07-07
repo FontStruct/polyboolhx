@@ -1,0 +1,3 @@
+<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+<path d="M300,300 L300,100 L200,100 L200,0 L0,0 L0,200 L100,200 L100,300 Z" fill="rgba(0, 255, 0, 0.5)" stroke="green" stroke-width="2" />
+</svg>
